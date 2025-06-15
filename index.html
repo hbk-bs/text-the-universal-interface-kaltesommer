@@ -1,22 +1,48 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="de">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>p5.js Starter Project</title>
-    <link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8" />
+  <title>Fashion Stylist KI</title>
+  <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@3.9.0/dist/tf.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@teachablemachine/image@0.8/dist/teachablemachine-image.min.js"></script>
+<script src="./lib/p5.min.js"></script>
+
+  <script src="index.js" defer></script>
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-<main>
-	<form action="">
-		<input type="text" id="input" name="content">
-		<button id="button" name="button">Click me</button>
-	</form>
-    <div id="sketch"></div>
-    <a href="index.js">souce code</a>
-    </main>
-    <script src="lib/p5.min.js"></script>
+  <h1>Fashion Stylist KI</h1>
 
-    <script src="index.js"></script>
+  <section>
+    <h2>Kleidung für dein Kleiderschrank hochladen</h2>
+    <form id="wardrobe-upload-form">
+      <input type="file" name="image" accept="image/*" />
+      <!-- <input type="text"name="description" placeholder="z. B. weißes Oversized T-Shirt, schwarzer Hoodie, blaue Mom-Jeans" required/> -->
+
+      <button type="submit">Hochladen</button>
+    </form>
+    <div id="wardrobe-upload-status"></div>
+    <div id="wardrobe-preview"></div>
+    <hr />
+    <div id="outfit-suggestion"></div>
+  </section>
+
+  <section>
+    <h2>Outfit vorschlagen</h2>
+    <!-- <form id="outfit-form">
+      <input type="file" name="image" accept="image/*" />
+      <button type="submit">Outfit finden</button>
+    </form> -->
+    <button id="suggest-outfit-btn">Outfit vorschlagen</button>
+    <div id="image-container"></div>
+    <div id="classification-result"></div>
+    <div id="result"></div>
+  </section>
+  <button id="clear-wardrobe-btn" style="margin-top: 10px;">🗑️ Kleiderschrank leeren</button>
+
+  <section>
+    <h2>🧥 Dein Kleiderschrank</h2>
+    <div id="wardrobe-list"></div>
+  </section>
 </body>
 </html>

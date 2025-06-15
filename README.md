@@ -1,55 +1,72 @@
-[![Review Assignment Due Date](https://classroom.github.com/assets/deadline-readme-button-22041afd0340ce965d47ae6ef1cefeee28c7c493a6346c4f15d667ab976d596c.svg)](https://classroom.github.com/a/T2g7psth)
-# Project Briefing: Text, the Universal Interface
+Dieses Projekt ist eine Fashion Stylist Ki, wo Nutzer Kleidungsbilder hochladen können und ein ML-Modell (Teachable Machine) diese Kleidungsstücke klassifiziert, die API speichert dies im “Kleiderschrank”. Diese Ki hilft der user effizienter und zeitsparend, ihren/seinen Outfit zu wählen.
 
-An exploration of what can be achieved with text and APIs using large language models.
+In der ML_Modell habe ich fünf Kategorien (sweater, t-shirt, jeans, hats and shoes) klassifiziert. Des Weiteren habe ich in valtown, zwei http endpoints erstellt die sozusagen die Verbindung zwischen lokal server zu backend verbindet. Einmal “Fashionwardrobe” wo man auf diesen Server Bilder hochladen kann, sie anschauen, speichern und löschen kann. Bei den zweiter api “fashionOutfitsuggester” , es gibt drei Kleidungsstücke wieder die dann als das fertige Outfit zusammengestellt werden.
 
-## Your Mission
+Wie zu benutzen: Lade ein Bilder hoch von max. 500x500px, von den fünf Kleidungskategorien, nachdem du zwei/ drei mal das gemacht hast, klickt du auf “Outfit vorschlagen” und somit wird random einen Outfit für dich generiert. 
 
-Ideate and prototype a speculative, beautiful, useless, meaningful, intricate, text-based application/game/art work/story as a web-based project that interacts with users by feeding their input to a large language model.
-Inputs might include clicks, typed answers, video feeds, audio, uploaded images, real-time weather data[0], geolocation[1], or other sources.
+Wie mein Javascript funktioniert:
+- Als 1. Initialisierung & Setup , globale variablen für das ML-Modell:  
+let model; let maxPredictions;
+- URLS zum ML-Modell und Backend-APIs:
+const TM_MODEL_URL=‘…’;
+const WARDROBE_API =‘…’;
+const OUTFIT_API=‘…’;
+- Gibt Startmeldung in die Konsole:
+Console.log(‘Starting Fashion Stylist AI…’);
 
-### 1. Warm-up
+2.setup[] Funktion
+- Function setup(){
+noCanvas();}
+- Wird beim Start ausgeführt.
+* Bindet Event-Listener an:
+* Upload-Formular
+* "Outfit vorschlagen"-Button
+* "Kleiderschrank leeren"-Button
+* Lädt das ML-Modell (loadTeachableMachineModel)
+* Lädt gespeicherte Kleidungsstücke (loadWardrobe)
 
+3. Outfit-Vorschlag
+Async function ShowOutfits(){…}
+* Holt zufällige Kleidungsstücke (T-Shirt, Jeans, Schuhe) über WARDROBE_API.
+* Wenn alle drei vorhanden → Anzeige eines Outfit-Vorschlags.
+* Sonst Fehlermeldung.
+* Stichpunkte:
+* Outfit besteht aus drei Kategorien.
+* API-Aufrufe pro Kategorie.
+* Vorschlag dynamisch im HTML angezeigt.
 
-Research large language models, generate ideas, and experiment with example applications.
+4. Bild als DataURL lesen & prüfen
+async function fileToDataURL(file)
+async function checkImageSize(dataURL)
+Wandelt ein hochgeladenes Bild in ein DataURL-Format um.
+Überprüft, ob das Bild maximal 500x500px groß ist.
 
-- Explore how different LLM APIs (like OpenAI, Cohere, or open-source models) are used
-- Create multiple small prototypes based on different input modalities (text, image, location, etc.)
-- Collect references and inspiration from existing projects
-- Learn about prompt engineering 
+5. ML-Modell laden
+async function loadTeachableMachineModel()
+* Lädt das trainierte Modell von Teachable Machine (model.json & metadata.json).
+* Speichert Anzahl der Klassen (maxPredictions).
+* Statusmeldung im HTML.
 
-### 2. The Zone
+6. Bildklassifikation
+async function classifyImage(imgElement)
+* Nutzt das Modell, um das Kleidungsstück im Bild zu erkennen.
+* Gibt die wahrscheinlichste Klasse (z. B. "jeans", "t-shirt", "shoe") zurück.
 
-Build your concept. Focus on functionality and interaction before styling.
+7. Upload & Klassifikation verarbeiten
+async function handleWardrobeUpload(e)
+* Wird beim Upload-Formular ausgelöst.
+* Schritte:
+    1. Datei einlesen.
+    2. Größe prüfen.
+    3. Klassifizieren mit ML.
+    4. Vorschau anzeigen.
+    5. Bild + Beschreibung an Backend (WARDROBE_API) senden.
+    6. Kleiderschrank aktualisieren.
 
-- Implement the core logic of your project
-- Connect input(s) to the language models API
-- Map out and refine your data flow and user interactions
+8. Kleiderschrank laden
 
-### 3. Finishing Touches
+async function loadWardrobe()
+* Holt alle gespeicherten Kleidungsstücke.
+* Zeigt sie als kleine Vorschau mit Beschreibung an.
 
-Polish your project. Add design, fix bugs, and test usability.
-
-- Improve visual and interaction design
-- Write help or onboarding texts for users
-- Conduct tests with friends/family and fix edge cases
-
-## Tips
-
-- Start small, iterate fast
-- Prompt engineering is the key
-- Use environment variables for your API keys if needed
-- Document your code
-- Does your prompt pass the "knock knock" test?
-
-  
-
-## Deliverables
-
-- A fully functional webpage with your prototype 
-- A README.md explaining your concept, tech stack, and how to use it
-- A LICENSE file specifying how others may use your work
-
-
-[0]: https://brightsky.dev/
-[1]: https://developer.mozilla.org/en-US/docs/Web/API/Geolocation_API/Using_the_Geolocation_API
+Die APIs (WARDROBE_API, OUTFIT_API) kommunizieren mit einem Backend.

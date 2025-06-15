@@ -1,69 +1,335 @@
-*,
-*::before,
-*::after {
-	margin: 0;
-	padding: 0;
-	box-sizing: border-box;
-}
-html {
-	font-size: 110%;
+body {
+    font-family: 'Arial Black', Gadget, sans-serif;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-height: 100vh;
+    margin: 0;
+    padding: 20px;
+    line-height: 1.6;
+    background: linear-gradient(135deg, #FFA07A, #F5DEB3, #FF69B4);
+    color: #fff;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+    position: relative;
+    overflow-x: hidden;
+    z-index: 0;
 }
 
-html,
-body {
-	width: 100%;
-	height: 100%;
+body::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-image: url('leoparden.jpg');
+    background-repeat: repeat;
+    opacity: 0.2; /* 20% opacity */
+    z-index: -1;
+    pointer-events: none;
 }
-
-body {
-	line-height: 1.5;
+    header {
+        background-color: #FF007F; 
+        color: #FFF;
+        padding: 25px;
+        width: 100%;
+        text-align: center;
+        box-shadow: 0 5px 15px rgba(235, 122, 178, 0.8); 
+        margin-bottom: 40px;
+        border-radius: 15px;
+        position: relative;
+    }
+    
+    h1 {
+    font-size: 3.5em; 
+    text-transform: uppercase; 
+    letter-spacing: 5px; 
+    margin: 0;
+    font-weight: 900; 
+    color: #ee5da3; 
+    text-shadow: 3px 3px 5px rgba(0,0,0,0.7), 0 0 10px #FF007F; 
 }
 
 main {
-	display: flex;
-	justify-content: flex-start;
-	align-items: center;
-	flex-direction: column;
-	height: 100%;
-	max-width: 700px;
-	margin: 0 auto;
-	padding: 1rlh;
-	gap: 1rlh;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 40px; 
+    width: 100%;
+    max-width: 1600px; 
+    padding: 0 20px; }
+
+.card {
+    background-color: rgba(255, 255, 255, 0.9); 
+    border-radius: 20px; 
+    box-shadow: 0 10px 30px rgba(0,0,0,0.4), 0 0 20px #FF007F; 
+    padding: 35px;
+    flex: 1;
+    min-width: 450px; 
+    max-width: 600px; 
+    position: relative;
+    overflow: hidden;
+    color: #333; 
+    border: 3px dashed #FF69B4; 
 }
+
+.card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-image: url('leoparden.jpg');
+    background-size: cover;
+    background-repeat: repeat;
+    opacity: 0.2; 
+    pointer-events: none;
+    z-index: 0;
+}
+
+
+
+.card h2, .card h3 {
+    color: #FF007F; 
+    text-shadow: 10px 10px 20px rgba(0,0,0,0.3);
+    position: relative; 
+    z-index: 1;
+}
+
 
 form {
-	display: flex;
-	justify-content: center;
-	align-items: center;
-	gap: 10px;
-	width: 100%;
+    margin-top: 25px;
+    padding-bottom: 25px;
+    border-bottom: 4px dotted #FF69B4; 
+    position: relative;
+    z-index: 1;
 }
 
-input {
-	height: 100%;
-	flex-grow: 1;
-	padding: 8px;
-	margin: 0;
+label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: bold;
+    color: #4B0082; 
 }
 
-input {
-	appearance: none;
-	-webkit-appearance: none;
-	margin: 0;
-	border: 1px solid #000;
+input[type="file"],
+input[type="text"] {
+    width: calc(100% - 24px); 
+    padding: 12px;
+    border: 2px solid #FF007F; 
+    border-radius: 8px;
+    font-size: 1.1rem;
+    background-color: #FFF;
+    color: #333;
+    box-shadow: inset 0 0 8px rgba(255,0,127,0.3); 
 }
 
 button {
-	height: 100%;
-	padding: 8px;
-	border: 1px solid #777;
-	background-color: #000;
-	color: #fff;
-	cursor: pointer;
-	flex: 0 0 100px;
+    padding: 15px 30px;
+    background: linear-gradient(45deg, #00FFFF, #FF007F); 
+    color: white;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    font-size: 1.2rem;
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    transition: all 0.3s ease-in-out; 
+    box-shadow: 0 5px 15px rgba(0,0,0,0.3); 
+    position: relative;
+    overflow: hidden;
 }
 
 button:hover {
-	background-color: #fff;
-	color: #000;
+    background-image: url('leoparden-grey.jpg'); 
+    box-shadow: 0 8px 20px rgba(0,0,0,0.5), 0 0 25px #00FFFF; 
+    transform: translateY(-3px); 
+}
+
+/* Glitzer-Effekt */
+button::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: rgba(255,255,255,0.3);
+    transform: skewX(-30deg);
+    transition: all 0.7s ease-in-out;
+}
+
+button:hover::before {
+    left: 100%;
+}
+
+
+.image-preview {
+    margin-top: 20px;
+    border: 3px solid #00FFFF; 
+    padding: 15px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 120px;
+    background-color: rgba(255,255,255,0.2); /* Leicht transparenter Hintergrund */
+    border-radius: 10px;
+    box-shadow: 0 0 15px rgba(0,255,255,0.7); 
+    position: relative;
+    z-index: 1;
+}
+
+.image-preview img {
+    max-width: 180px; 
+    max-height: 180px;
+    display: block;
+    border-radius: 8px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+    border: 2px solid #FF69B4; 
+}
+
+.status-message {
+    margin-top: 25px;
+    padding: 18px;
+    border-radius: 8px;
+    background: linear-gradient(90deg, rgba(255,105,180,0.9), rgba(0,255,255,0.9)); /* Pink-Türkis Verlauf */
+    border: 2px dashed #FFF; 
+    color: #FFF;
+    font-weight: bold;
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+    box-shadow: 0 0 15px rgba(255,105,180,0.7); 
+    position: relative;
+    z-index: 1;
+}
+.status-message p { margin: 0; }
+.status-message p strong { color: #FFFF00;  } 
+
+#wardrobe-list {
+    margin-top: 25px;
+    padding-top: 15px;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); 
+    gap: 20px; 
+    max-height: 450px; 
+    overflow-y: auto;
+    border-top: 4px dotted #00FFFF; 
+    position: relative;
+    z-index: 1;
+}
+
+.wardrobe-item {
+    text-align: center;
+    border: 2px solid #FF69B4; 
+    padding: 15px;
+    border-radius: 10px;
+    background-color: rgba(255,255,255,0.9); 
+    box-shadow: 0 3px 10px rgba(0,0,0,0.2), 0 0 10px rgba(255,105,180,0.5); 
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    color: #333; 
+}
+
+.wardrobe-item img {
+    max-width: 100px;
+    max-height: 100px;
+    border-radius: 6px;
+    margin-bottom: 10px;
+    border: 2px solid #00FFFF; 
+}
+
+.wardrobe-item p {
+    font-size: 1em;
+    color: #4B0082; 
+    font-weight: bold;
+    margin: 0;
+}
+.wardrobe-item p em {
+    font-size: 0.8em;
+    color: #6A5ACD; 
+}
+
+.outfit-items {
+    margin-top: 25px;
+    border-top: 2px dotted #FF69B4;
+    padding-top: 20px;
+    position: relative;
+    z-index: 1;
+}
+
+.outfit-item {
+    display: flex;
+    align-items: center;
+    margin-bottom: 15px;
+    padding: 15px;
+    background: linear-gradient(90deg, #FFD700, #FF8C00); 
+    border-left: 8px solid #FF007F; 
+    border-radius: 12px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.2), 0 0 15px rgba(255,215,0,0.7); 
+    color: #4B0082; 
+    font-weight: bold;
+    text-shadow: 1px 1px 2px rgba(255,255,255,0.5); 
+}
+
+.outfit-item img {
+    margin-right: 15px;
+    border: 2px solid #FFF; 
+    border-radius: 50%; 
+    box-shadow: 0 0 10px rgba(255,255,255,0.7);
+}
+
+.outfit-item p {
+    margin: 0;
+    padding-left: 10px;
+}
+
+
+footer {
+    margin-top: 50px;
+    padding: 25px;
+    width: 100%;
+    text-align: center;
+    color: #FFF;
+    font-size: 1.1em;
+    text-shadow: 1px 1px 3px rgba(0,0,0,0.6);
+    border-top: 2px solid #FF69B4; 
+}
+#sketch {
+    display: none;
+}
+
+/* KEYFRAMES FÜR ANIMATIONEN */
+/* @keyframes gradientShift {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
+@keyframes sparkleFade {
+    0% { opacity: 0.7; transform: scale(1); }
+    50% { opacity: 0.9; transform: scale(1.05); }
+    100% { opacity: 0.7; transform: scale(1); }
+} */
+
+
+@media (max-width: 768px) {
+    main {
+        flex-direction: column;
+        align-items: center;
+    }
+    .card {
+        min-width: unset; 
+        width: 95%; 
+        padding: 20px;
+    }
+    h1 {
+        font-size: 2.5em;
+        letter-spacing: 2px;
+    }
+    button {
+        font-size: 1rem;
+        padding: 12px 20px;
+    }
 }
