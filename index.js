@@ -1,195 +1,181 @@
-let model;
-let maxPredictions;
-const TM_MODEL_URL = 'https://teachablemachine.withgoogle.com/models/BtupqLuvE/';
+
+const OPENAI_PROXY = 'https://kaltesommer--a21d26f2a5284eb1b8d7dbce66382982.web.val.run';
 const WARDROBE_API = 'https://kaltesommer--9c6bb56c49ea11f0ad8b76b3cceeab13.web.val.run';
-const OUTFIT_API = 'https://kaltesommer--3f8cd864489411f0badb76b3cceeab13.web.val.run';
-console.log('Starting Fashion Stylist AI...');
-function setup() {
-	console.log('Setup called');
-  noCanvas();
-  document.getElementById('wardrobe-upload-form').addEventListener('submit', handleWardrobeUpload);
-  document.getElementById('suggest-outfit-btn').addEventListener('click', showOutfits);
-  document.getElementById('clear-wardrobe-btn').addEventListener('click', async () => {
-  if (!confirm('Möchtest du wirklich den Kleiderschrank löschen?')) return;
 
-  try {
-    const res = await fetch(WARDROBE_API, { method: 'DELETE' });
-    if (!res.ok) throw new Error(await res.text());
+document.addEventListener('DOMContentLoaded', () => {
+  const uploadForm       = /** @type {HTMLFormElement} */ (document.getElementById('wardrobe-upload-form'));
+  const statusEl         = document.getElementById('wardrobe-upload-status');
+  const previewEl        = document.getElementById('wardrobe-preview');
+  const clearBtn         = document.getElementById('clear-wardrobe-btn');
+  const suggestBtn       = document.getElementById('suggest-outfit-btn');
+  const outfitEl         = document.getElementById('outfit-suggestion');
+  const wardrobeList     = document.getElementById('wardrobe-list');
 
-    alert('✅ Kleiderschrank wurde geleert.');
-    loadWardrobe(); // Refresh the UI
-  } catch (err) {
-    alert('❌ Fehler beim Leeren: ' + err.message);
-  }
-});
-
-  loadTeachableMachineModel();
-  loadWardrobe();
-}
-
-async function showOutfits() {
-  console.log('Show outfits called');
-
-  const suggestionOutput = document.getElementById('outfit-suggestion');
-  suggestionOutput.innerHTML = '⏳ Lade Outfit...';
-
-  try {
-    // Helper to fetch a random item by type
-    async function getRandomItem(type) {
-      const res = await fetch(`${WARDROBE_API}?type=${type}`);
-      if (!res.ok) throw new Error(`Fehler beim Laden von ${type}`);
-      const items = await res.json();
-      if (!items.length) return null;
-      return items[Math.floor(Math.random() * items.length)];
-    }
-
-    const [shirt, jeans, shoes] = await Promise.all([
-      getRandomItem("t-shirt"),
-      getRandomItem("jeans"),
-      getRandomItem("shoe"),
-    ]);
-
-    const outfitItems = [shirt, jeans, shoes].filter(Boolean);
-
-    if (!outfitItems.length) {
-      suggestionOutput.innerHTML = "❌ Keine vollständige Outfit-Kombination gefunden.";
-      return;
-    }
-
-    suggestionOutput.innerHTML = `
-      <h3>🧥 Dein Outfit-Vorschlag</h3>
-      <div style="display:flex; flex-direction:column; gap:10px;">
-        ${outfitItems.map(item => `
-          <div style="text-align:center;">
-            <img src="${item.imageUrl}" alt="${item.description}" style="max-width:120px; border-radius:8px;" />
-            <p>${item.description}</p>
-          </div>
-        `).join('')}
-      </div>
-    `;
-  } catch (err) {
-    suggestionOutput.innerHTML = `❌ Fehler: ${err.message}`;
-  }
-}
-
-
-
-
-async function fileToDataURL(file) {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onload = () => resolve(reader.result);
-    reader.onerror = reject;
-    reader.readAsDataURL(file);
-  });
-}
-
-async function checkImageSize(dataURL) {
-  return new Promise((resolve, reject) => {
-    const img = new Image();
-    img.onload = () => {
-      if (img.width > 500 || img.height > 500) {
-        reject('Bild ist zu groß (max. 500x500px)');
-      } else {
-        resolve();
-      }
-    };
-    img.onerror = () => reject('Bild konnte nicht geladen werden.');
-    img.src = dataURL;
-  });
-}
-
-async function loadTeachableMachineModel() {
-  try {
-    model = await tmImage.load(TM_MODEL_URL + 'model.json', TM_MODEL_URL + 'metadata.json');
-    maxPredictions = model.getTotalClasses();
-    document.getElementById('classification-result').innerText = '✅ Modell geladen';
-  } catch (err) {
-    document.getElementById('classification-result').innerText = '❌ Fehler beim Modell-Laden';
-    console.error(err);
-  }
-}
-
-async function classifyImage(imgElement) {
-  const predictions = await model.predict(imgElement);
-  return predictions.reduce((a, b) => (a.probability > b.probability ? a : b));
-}
-
-async function handleWardrobeUpload(e) {
-  e.preventDefault();
-  const form = e.target;
-  const file = form.image.files[0];
-  //const customDesc = form.description.value.trim();
-  const status = document.getElementById('wardrobe-upload-status');
-  const preview = document.getElementById('wardrobe-preview');
-  const suggestionOutput = document.getElementById('outfit-suggestion');
-
-  if (!file) {
-    status.innerText = '⚠️ Bitte ein Bild auswählen.';
+  if (!uploadForm || !statusEl || !previewEl || !clearBtn || !suggestBtn || !outfitEl || !wardrobeList) {
+    console.error("❌ Missing required DOM elements. Check your HTML IDs.");
     return;
   }
 
+  // Upload handler
+  uploadForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const fileInput = uploadForm.querySelector('input[name="image"]');
+    if (!(fileInput instanceof HTMLInputElement) || !fileInput.files?.[0]) {
+      statusEl.textContent = "⚠️ Bitte ein Bild auswählen.";
+      return;
+    }
+    const file = fileInput.files[0];
+
+    try {
+      const dataURL = await fileToDataURL(file);
+      previewEl.innerHTML = `<img src="${dataURL}" alt="Preview" style="max-width:100px;max-height:100px;">`;
+
+      // classify clothing
+      const classification = await classifyClothing(dataURL);
+      const items = Array.isArray(classification?.items) ? classification.items : [];
+      if (!items.length) {
+        statusEl.textContent = "❌ Keine Kleidung erkannt.";
+        return;
+      }
+
+      const desc = items.map(it => toReadableLine(it, false)).join(", ");
+      statusEl.textContent = `✅ Erkannt: ${desc}`;
+
+      // save in wardrobe API
+      await fetch(WARDROBE_API, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ imageUrl: dataURL, description: desc })
+      });
+
+      await loadWardrobe();
+      uploadForm.reset();
+    } catch (err) {
+      console.error(err);
+      statusEl.textContent = `❌ Fehler: ${err.message || err}`;
+    }
+  });
+
+  // Clear wardrobe
+  clearBtn.addEventListener('click', async () => {
+    if (!confirm("Möchtest du wirklich den Kleiderschrank löschen?")) return;
+    try {
+      await fetch(WARDROBE_API, { method: 'DELETE' });
+      statusEl.textContent = "✅ Kleiderschrank geleert.";
+      await loadWardrobe();
+    } catch (err) {
+      statusEl.textContent = `❌ Fehler: ${err.message}`;
+    }
+  });
+
+  // Suggest outfit
+  suggestBtn.addEventListener('click', async () => {
+    outfitEl.textContent = "⏳ Lade Outfit...";
+    try {
+      const [shirt, jeans, shoes] = await Promise.all([
+        getRandomWardrobeItem("t-shirt"),
+        getRandomWardrobeItem("jeans"),
+        getRandomWardrobeItem("shoe")
+      ]);
+      const picks = [shirt, jeans, shoes].filter(Boolean);
+      if (!picks.length) {
+        outfitEl.textContent = "❌ Kein Outfit gefunden.";
+        return;
+      }
+      outfitEl.innerHTML = `
+        <h3>🧥 Outfit Vorschlag</h3>
+        ${picks.map(renderCard).join("")}
+      `;
+    } catch (err) {
+      outfitEl.textContent = `❌ Fehler: ${err.message}`;
+    }
+  });
+
+  // Load wardrobe at start
+  loadWardrobe();
+
+  async function loadWardrobe() {
+    wardrobeList.textContent = "⏳ Lade Kleiderschrank...";
+    try {
+      const res = await fetch(WARDROBE_API);
+      const items = await res.json();
+      if (!Array.isArray(items) || !items.length) {
+        wardrobeList.textContent = "👕 Dein Kleiderschrank ist leer.";
+        return;
+      }
+      wardrobeList.innerHTML = items.map(renderRow).join("");
+    } catch (err) {
+      wardrobeList.textContent = `❌ Fehler beim Laden: ${err.message}`;
+    }
+  }
+
+  async function getRandomWardrobeItem(type) {
+    const res = await fetch(`${WARDROBE_API}?type=${encodeURIComponent(type)}`);
+    const items = await res.json();
+    if (!Array.isArray(items) || !items.length) return null;
+    return items[Math.floor(Math.random() * items.length)];
+  }
+});
+
+// --- helpers ---
+async function classifyClothing(dataURL) {
+  const body = {
+    model: "gpt-4o-mini",
+    temperature: 0,
+    response_format: { type: "json_object" },
+    messages: [
+      { role: "system", content: "Identify clothing items in the image. The only categories you can use are t-shirt, jeans, shoe. Return JSON: {items:[{category}]}" },
+      { role: "user", content: "Analyze this clothing image and return only JSON." },
+      { role: "user", content: [{ type: "image_url", image_url: { url: dataURL } }] }
+    ]
+  };
+  const res = await fetch(OPENAI_PROXY, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(body)
+  });
+  const out = await res.json();
+  const text = out?.completion?.choices?.[0]?.message?.content ?? "";
   try {
-    const dataURL = await fileToDataURL(file);
-    await checkImageSize(dataURL);
-
-    const img = new Image();
-    img.src = dataURL;
-
-    // wachten tot foto geladen is, voor klassificatie
-    await new Promise(res => (img.onload = res));
-    const prediction = await classifyImage(img);
-    const label = prediction.className;
-    const fullDesc = label//`${customDesc || 'Kleidungsstück'} (${label})`;
-
-    // foto laten zien
-    preview.innerHTML = `<img src="${dataURL}" alt="${fullDesc}" style="max-width:100px;max-height:100px;">`;
-
-    // upload naar kast
-    const uploadRes = await fetch(WARDROBE_API, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ imageUrl: dataURL, description: fullDesc }),
-    });
-
-    if (!uploadRes.ok) throw new Error('Upload fehlgeschlagen.');
-
-    status.innerText = `✅ Hochgeladen & erkannt als "${label}"`;
-    form.reset();
-
-    // kast opnieuw ladem
-    loadWardrobe();
-
-  } catch (err) {
-    status.innerText = `❌ Fehler: ${err.message || err}`;
+    return JSON.parse(text);
+  } catch {
+    return { items: [] };
   }
 }
 
-async function loadWardrobe() {
-  const container = document.getElementById('wardrobe-list');
-  if (!container) return;
+function renderRow(item) {
+  return `
+    <div style="display:flex;align-items:center;gap:10px;margin:6px 0;border:1px solid #ccc;padding:6px;border-radius:6px;">
+      <img src="${item.imageUrl}" alt="${item.description}" style="width:60px;height:60px;object-fit:contain;border-radius:4px;" />
+      <span>${item.description}</span>
+    </div>
+  `;
+}
 
-  container.innerHTML = '⏳ Lade Kleiderschrank...';
+function renderCard(item) {
+  return `
+    <div style="display:inline-block;text-align:center;margin:6px;">
+      <img src="${item.imageUrl}" alt="${item.description}" style="width:100px;height:100px;object-fit:contain;border-radius:6px;" />
+      <p>${item.description}</p>
+    </div>
+  `;
+}
 
-  try {
-    const res = await fetch(WARDROBE_API);
-	console.log(res);
-    const wardrobe = await res.json();
+function toReadableLine(it, plain = true) {
+  const parts = [it.category, it.color, it.pattern, it.material].filter(Boolean);
+  const txt = parts.join(", ");
+  return plain ? txt : escapeHtml(txt);
+}
 
-    if (!Array.isArray(wardrobe) || wardrobe.length === 0) {
-      container.innerHTML = '👕 Dein Kleiderschrank ist leer.';
-      return;
-    }
+function escapeHtml(s) {
+  return String(s).replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+}
 
-    container.innerHTML = wardrobe.map(item => `
-      <div class="wardrobe-item" style="margin:10px;border:1px solid #ccc;padding:8px;border-radius:8px;">
-        <img src="${item.imageUrl}" alt="${item.description}" style="width:80px;height:80px;object-fit:contain;" />
-        <p>${item.description}</p>
-      </div>
-    `).join('');
-  } catch (err) {
-    container.innerHTML = `❌ Fehler beim Laden: ${err.message}`;
-  }
-  //console.log("Handling "+req.method+" request");
-
+function fileToDataURL(file) {
+  return new Promise((resolve, reject) => {
+    const r = new FileReader();
+    r.onload = () => resolve(r.result);
+    r.onerror = reject;
+    r.readAsDataURL(file);
+  });
 }
