@@ -1,16 +1,34 @@
-## This project was an exploration of what can be achieved with text and APIs using large language models.
+# Fashion Stylist KI 👗🤖
 
-        For my project I built a Fashion Stylist AI. I was inspired by the film Clueless, where the girl had a digital
-        wardrobe assistant that could generate the best combination of her clothes to save time.
+An AI-powered wardrobe assistant that helps you **upload your clothes**, store them digitally, and receive **outfit suggestions**.  
+Built with **TensorFlow.js**, **Teachable Machine**, and **p5.js**.
 
-        Users can upload clothing images, which are classified into one of three categories: t-shirt, jeans, or shoes.
-        The results are stored in a wardrobe database through the FashionWardrobe API, where items can be viewed, saved,
-        or deleted.
+---
 
-        The system also includes a second API, FashionOutfitSuggester, which randomly selects items from the wardrobe
-        (one t-shirt, one pair of jeans, and one pair of shoes) to generate a complete outfit suggestion.
+## Features
 
-        The challenges were integrating the API properly and ensuring different outfits were selected.
+- 📤 **Upload clothes**: Add images of your clothing items to your digital wardrobe.  
+- 👕 **Wardrobe preview**: See what’s been uploaded and stored.  
+- 🎯 **AI outfit suggestions**: The system suggests outfits based on your uploaded wardrobe.  
+- 🧹 **Clear wardrobe**: Easily reset your wardrobe with one click.  
 
-        My project shows how AI classification, API integration, and frontend interaction can be combined to create a
-        simple but functional personal styling assistant.
+---
+
+## How It Works
+
+1. Upload an image of a clothing item via the **upload form**.  
+2. The item is previewed and stored in your wardrobe.  
+3. Click **"Outfit vorschlagen"** to let the AI recommend an outfit.  
+4. Outfit suggestions are displayed dynamically in the result area.  
+5. Clear your wardrobe anytime with the **🗑️ button**.  
+
+---
+
+## Tech Stack
+
+- [TensorFlow.js](https://www.tensorflow.org/js)  
+- [Teachable Machine](https://teachablemachine.withgoogle.com/)  
+- [p5.js](https://p5js.org/)  
+- HTML5 / CSS3 / JavaScript  
+
+---
